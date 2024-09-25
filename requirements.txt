@@ -1,0 +1,12 @@
+functions-framework==3.*
+urllib3==1.26.16
+requests==2.31.0
+google-api-core==2.19.2
+google-api-python-client==2.147.0
+google-auth==2.34.0
+google-auth-httplib2==0.2.0
+google-cloud-core==2.4.1
+google-cloud-storage==2.18.2
+google-crc32c==1.6.0
+google-resumable-media==2.7.2
+googleapis-common-protos==1.65.0
