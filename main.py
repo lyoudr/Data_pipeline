@@ -1,14 +1,24 @@
 from cloudevents.http import CloudEvent
+from dotenv import load_dotenv
 import functions_framework
 import json
+import os 
 
 # google
 import google.auth
 from googleapiclient.discovery import build 
 
+load_dotenv()
+
+TEMPLATE_PATH=os.getenv("TEMPLATE_PATH")
+REGION=os.getenv("REGION")
+GCS_BUCKET=os.getenv("GCS_BUCKET")
+
+print("TEMPLATE_PATH is ->", TEMPLATE_PATH)
+
 # Triggered by a change in a storage bucket
 @functions_framework.cloud_event
-def hello_gcs(cloud_event: CloudEvent) -> tuple:
+def trigger_event(cloud_event: CloudEvent) -> tuple:
     """This function is triggered by a change in a storage bucket.
 
     Args:
@@ -34,23 +44,18 @@ def hello_gcs(cloud_event: CloudEvent) -> tuple:
     print(f"Metageneration: {metageneration}")
     print(f"Created: {timeCreated}")
     print(f"Updated: {updated}")
-    
+
     # Trigger DataFlow DataPipeLine
     credentials, project_id = google.auth.default()
     dataflow = build('dataflow', 'v1b3', credentials=credentials)
-    job_name = 'pipeline'
-    template_path = 'gs://ann-billing/dataflow/data_pipeline'
-    region = 'asia-east1'
-    # parameters = {
-    #     'inputFile': "gs://ann-billing/staging/billing_report.csv",
-    #     'output': "gs://ann-billing/dataflow/my_output"
-    # }
+    job_name = 'calculate'
+    template_path = TEMPLATE_PATH
+    region = REGION
     job_request = {
         "jobName": job_name,
-        # "parameters": parameters,
         "environment": {
-            "tempLocation": "gs://ann-billing/temp",
-            "zone": "asia-east1-a"
+            "tempLocation": f"{GCS_BUCKET}/temp",
+            "zone": 'asia-east1-a',  # Ensure this matches the region of your template
         }
     }
     # call kubernetes service
